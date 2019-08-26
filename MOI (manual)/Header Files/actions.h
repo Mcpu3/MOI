@@ -5,10 +5,30 @@ using namespace std;
 
 class Action {
 public:
+	enum class Type {
+		MOVE,
+		REMOVE,
+		STAY
+	};
+
+	Type type;
 	const int agentID;
-	string type;
-	pair<int, int> dxdy;
-	int turn, apply;
+	int apply, turn;
+	pair<int, int> dydx;
+
+	Action(const Type& type, const int& agentID, const int& apply, const int& turn, const pair<int, int>& dydx) :
+		type(type),
+		agentID(agentID),
+		apply(apply),
+		turn(turn),
+		dydx(dydx)
+	{}
+
+	Action(const Type& type, const int& agentID, const pair<int, int>& dydx) :
+		type(type),
+		agentID(agentID),
+		dydx(dydx)
+	{}
 
 	Action(const int& agentID) : agentID(agentID) {}
 };
@@ -16,8 +36,4 @@ public:
 class Actions {
 public:
 	vector<Action> actions;
-
-	Actions(const vector<int>& agentIDs) {
-		for (const int i : agentIDs) actions.push_back(Action(i));
-	}
 };

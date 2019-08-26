@@ -2,103 +2,91 @@
 
 #include <Siv3D.hpp>
 #include <queue>
-#include "Field.h"
+#include "field.h"
 #include "teams.h"
 using namespace std;
 
 class Points {
 private:
-	const Field& _field;
-	const Teams _teams;
+	const FieldPoints& _fieldPoints;
+	const FieldTiled& _fieldTiled;
+	const Team& _team;
 
 public:
-	Points(const Field& field, const Teams& teams) :
-		_field(field),
-		_teams(teams)
+	Points(const FieldPoints& fieldPoints, const FieldTiled& fieldTiled, const Team& team) :
+		_fieldPoints(fieldPoints),
+		_fieldTiled(fieldTiled),
+		_team(team)
 	{}
 
-	pair<int, int> getTilePoint() {
-		const vector<int> _teamID{ _teams.teams.first.teamID, _teams.teams.second.teamID };
-		vector<int> _tilePoint(2);
+	int getAreaPoint() {
+		const vector<pair<int, int>> _dydx{ { -1, 0 }, { 0, -1 }, { 0, 1 }, { 1, 0 } };
+		int _areaPoint = 0;
+		queue<pair<int, int>> _queue;
+		vector<vector<bool>> _visits(2 + _fieldPoints.height, vector<bool>(2 + _fieldPoints.weight));
 
-		for (int i = 0; i < _field.height; ++i) {
-			for (int j = 0; j < _field.weight; ++j) {
-				for (int k = 0; k < 2; ++k) {
-					if (_field.tiled[i][j] == _teamID[k]) _tilePoint[k] += _field.points[i][j];
+		for (int i = 1; i <= _fieldPoints.height; ++i) {
+			_visits[i][1] = true;
+			_visits[i][_fieldPoints.weight] = true;
+			if (_fieldTiled.tiled[i][1] != _team.teamID) {
+				for (const pair<int, int>& j : _dydx) {
+					if (!_fieldPoints.isWall[i + j.first][1 + j.second] && !_visits[i + j.first][1 + j.second]) _queue.emplace(i + j.first, 1 + j.second);
 				}
 			}
+			if (_fieldTiled.tiled[i][_fieldPoints.weight] != _team.teamID) {
+				for (const pair<int, int>& j : _dydx) {
+					if (!_fieldPoints.isWall[i + j.first][_fieldPoints.weight + j.second] && !_visits[i + j.first][_fieldPoints.weight + j.second]) _queue.emplace(i + j.first, _fieldPoints.weight + j.second);
+				}
+			}
+			while (!_queue.empty()) {
+				_visits[_queue.front().first][_queue.front().second] = true;
+				if (_fieldTiled.tiled[_queue.front().first][_queue.front().second] != _team.teamID) {
+					for (const pair<int, int>& j : _dydx) {
+						if (!_fieldPoints.isWall[_queue.front().first + j.first][_queue.front().second + j.second] && !_visits[_queue.front().first + j.first][_queue.front().second + j.second]) _queue.emplace(_queue.front().first + j.first, _queue.front().second + j.second);
+					}
+				}
+				_queue.pop();
+			}
 		}
-		return { _tilePoint[0], _tilePoint[1] };
+		for (int i = 1; i <= _fieldPoints.weight; ++i) {
+			_visits[1][i] = true;
+			_visits[_fieldPoints.height][i] = true;
+			if (_fieldTiled.tiled[1][i] != _team.teamID) {
+				for (const pair<int, int>& j : _dydx) {
+					if (!_fieldPoints.isWall[1 + j.first][i + j.second] && !_visits[1 + j.first][i + j.second]) _queue.emplace(1 + j.first, i + j.second);
+				}
+			}
+			if (_fieldTiled.tiled[_fieldPoints.height][i] != _team.teamID) {
+				for (const pair<int, int>& j : _dydx) {
+					if (!_fieldPoints.isWall[_fieldPoints.height + j.first][i + j.second] && !_visits[_fieldPoints.height + j.first][i + j.second]) _queue.emplace(_fieldPoints.height + j.first, i + j.second);
+				}
+			}
+			while (!_queue.empty()) {
+				_visits[_queue.front().first][_queue.front().second] = true;
+				if (_fieldTiled.tiled[_queue.front().first][_queue.front().second] != _team.teamID) {
+					for (const pair<int, int>& j : _dydx) {
+						if (!_fieldPoints.isWall[_queue.front().first + j.first][_queue.front().second + j.second] && !_visits[_queue.front().first + j.first][_queue.front().second + j.second]) _queue.emplace(_queue.front().first + j.first, _queue.front().second + j.second);
+					}
+				}
+				_queue.pop();
+			}
+		}
+		for (int i = 1; i <= _fieldPoints.height; ++i) {
+			for (int j = 1; j <= _fieldPoints.weight; ++j) {
+				if (!_visits[i][j] && _fieldTiled.tiled[i][j] != _team.teamID) _areaPoint += abs(_fieldPoints.points[i][j]);
+			}
+		}
+		return _areaPoint;
 	}
 
-	pair<int, int> getAreaPoint() {
-		const vector<int> _teamID{ _teams.teams.first.teamID, _teams.teams.second.teamID };
-		queue<pair<int, int>> _queue;
-		vector<int> _areaPoint(2);
+	int getTilePoint() {
+		int _tilePoint = 0;
 
-		for (int i = 0; i < 2; ++i) {
-			vector<vector<bool>> _visits(_field.height, vector<bool>(_field.weight));
-
-			for (int j = 0; j < _field.height; ++j) {
-				_queue.push({ j, _field.weight - 1 });
-				_queue.push({ j, 0 });
-				_visits[j].front() = true;
-				_visits[j].back() = true;
-				while (!_queue.empty()) {
-					if (!_visits[_queue.front().first][_queue.front().second] && _field.tiled[_queue.front().first][_queue.front().second] != _teamID[i]) {
-						if (_field.height - 1 != _queue.front().first) {
-							_queue.push({ 1 + _queue.front().first, _queue.front().second });
-							_visits[1 + _queue.front().first][_queue.front().second] = true;
-						}
-						if (_field.weight - 1 != _queue.front().second) {
-							_queue.push({ _queue.front().first, 1 + _queue.front().second });
-							_visits[_queue.front().first][1 + _queue.front().second] = true;
-						}
-						if (_queue.front().first) {
-							_queue.push({ _queue.front().first - 1, _queue.front().second });
-							_visits[_queue.front().first - 1][_queue.front().second] = true;
-						}
-						if (_queue.front().second) {
-							_queue.push({ _queue.front().first, _queue.front().second - 1 });
-							_visits[_queue.front().first][_queue.front().second - 1] = true;
-						}
-					}
-					_queue.pop();
-				}
-			}
-			for (int j = 0; j < _field.weight; ++j) {
-				_queue.push({ _field.height - 1, j });
-				_queue.push({ 0, j });
-				_visits.front()[j] = true;
-				_visits.back()[j] = true;
-				while (!_queue.empty()) {
-					if (!_visits[_queue.front().first][_queue.front().second] && _field.tiled[_queue.front().first][_queue.front().second] != _teamID[i]) {
-						if (_field.height - 1 != _queue.front().first) {
-							_queue.push({ 1 + _queue.front().first, _queue.front().second });
-							_visits[1 + _queue.front().first][_queue.front().second] = true;
-						}
-						if (_field.weight - 1 != _queue.front().second) {
-							_queue.push({ _queue.front().first, 1 + _queue.front().second });
-							_visits[_queue.front().first][1 + _queue.front().second] = true;
-						}
-						if (_queue.front().first) {
-							_queue.push({ _queue.front().first - 1, _queue.front().second });
-							_visits[_queue.front().first - 1][_queue.front().second] = true;
-						}
-						if (_queue.front().second) {
-							_queue.push({ _queue.front().first, _queue.front().second - 1 });
-							_visits[_queue.front().first][_queue.front().second - 1] = true;
-						}
-					}
-					_queue.pop();
-				}
-			}
-			for (int j = 0; j < _field.height; ++j) {
-				for (int k = 0; k < _field.weight; ++k) {
-					if (!_visits[j][k] && _field.tiled[j][k] != _teamID[i]) _areaPoint[i] += abs(_field.points[j][k]);
-				}
+		for (int i = 1; i <= _fieldPoints.height; ++i) {
+			for (int j = 1; j <= _fieldPoints.weight; ++j) {
+				if (_fieldTiled.tiled[i][j] == _team.teamID) _tilePoint += _fieldPoints.points[i][j];
 			}
 		}
-		return { _areaPoint[0], _areaPoint[1] };
+		return _tilePoint;
 	}
 };
