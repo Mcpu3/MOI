@@ -3,31 +3,40 @@
 #include <Siv3D.hpp>
 using namespace std;
 
-class FieldPoints {
+class FixedField {
 public:
-	const int height, weight;
-	const vector<vector<int>> points;
+	int width, height, startedAtUnixTime;
+	vector<vector<int>> points;
 	vector<vector<bool>> isWall;
 
-	FieldPoints(const int& height, const int& weight, const vector<vector<int>>& points) :
+	FixedField() = default;
+
+	FixedField(const int& width, const int& height, const int& startedAtUnixTime, const vector<vector<int>>& points) :
+		width(width),
 		height(height),
-		weight(weight),
+		startedAtUnixTime(startedAtUnixTime),
 		points(points),
-		isWall(2 + height, vector<bool>(2 + weight)) {
+		isWall(2 + height, vector<bool>(2 + width)) {
 		for (int i = 0; i < 2 + height; ++i) {
 			isWall[i].front() = true;
 			isWall[i].back() = true;
 		}
-		for (int i = 0; i < 2 + weight; ++i) {
+		for (int i = 0; i < 2 + width; ++i) {
 			isWall.front()[i] = true;
 			isWall.back()[i] = true;
 		}
 	}
 };
 
-class FieldTiled {
+class VariableField {
 public:
+	int turn;
 	vector<vector<int>> tiled;
 
-	FieldTiled(const int& height, const int& weight) : tiled(2 + height, vector<int>(2 + weight)) {}
+	VariableField() = default;
+
+	VariableField(const int& turn, const vector<vector<int>>& tiled) :
+		turn(turn),
+		tiled(tiled)
+	{}
 };

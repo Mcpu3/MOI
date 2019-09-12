@@ -11,26 +11,35 @@ public:
 		STAY
 	};
 
+	int agentID;
 	Type type;
-	const int agentID;
-	int apply, turn;
 	pair<int, int> dydx;
+	int turn, apply;
 
-	Action(const Type& type, const int& agentID, const int& apply, const int& turn, const pair<int, int>& dydx) :
-		type(type),
-		agentID(agentID),
-		apply(apply),
-		turn(turn),
-		dydx(dydx)
-	{}
-
-	Action(const Type& type, const int& agentID, const pair<int, int>& dydx) :
-		type(type),
-		agentID(agentID),
-		dydx(dydx)
-	{}
+	Action() = default;
 
 	Action(const int& agentID) : agentID(agentID) {}
+
+	Action(const int& agentID, const Type& type, const pair<int, int>& dydx) :
+		agentID(agentID),
+		type(type),
+		dydx(dydx)
+	{}
+
+	Action(const int& agentID, const Type& type, const pair<int, int>& dydx, const int& turn) :
+		agentID(agentID),
+		type(type),
+		dydx(dydx),
+		turn(turn)
+	{}
+
+	Action(const int& agentID, const Type& type, const pair<int, int>& dydx, const int& turn, const int& apply) :
+		agentID(agentID),
+		type(type),
+		dydx(dydx),
+		turn(turn),
+		apply(apply)
+	{}
 };
 
 class Actions {

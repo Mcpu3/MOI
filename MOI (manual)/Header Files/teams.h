@@ -5,7 +5,7 @@ using namespace std;
 
 class Agent {
 public:
-	const int agentID;
+	int agentID;
 	pair<int, int> yx;
 
 	Agent(const int& agentID) : agentID(agentID) {}
@@ -23,7 +23,7 @@ public:
 
 class Team {
 public:
-	const int teamID;
+	int teamID;
 	Agents agents;
 	int tilePoint, areaPoint;
 
@@ -41,5 +41,5 @@ class Teams {
 public:
 	pair<Team, Team> teams;
 
-	Teams(const pair<int, int>& teamID) : teams(teamID) {}
+	Teams(const pair<Team, Team>& teams) : teams(teams) {}
 };
