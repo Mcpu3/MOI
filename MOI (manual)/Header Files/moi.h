@@ -17,24 +17,25 @@ public:
 
 		Console.open();
 		cout << "MOI" << endl;
+
 		while ('\n' != getchar()) {}
 
 		FixedField _fixedField = Reader::readFixedField();
 		VariableField _variableField = Reader::readVariableField(_fixedField);
-		Teams _teams = Reader::readTeams();
+		Teams _teams = Reader::readTeams(_match);
 		Solver _solver(_fixedField, _variableField, _match, _teams);
 
-		if (_match.teamID != _teams.teams.first.teamID) swap(_teams.teams.first, _teams.teams.second);
 		Writer::writeActions(_solver.getActions());
+
 		while (true) {
 			cout << "MOI" << endl;
+
 			while ('\n' != getchar()) {}
 
 			Actions _actions = Reader::readActions();
 
 			_variableField = Reader::readVariableField(_fixedField);
-			_teams = Reader::readTeams();
-			if (_match.teamID != _teams.teams.first.teamID) swap(_teams.teams.first, _teams.teams.second);
+			_teams = Reader::readTeams(_match);
 			Writer::writeActions(_solver.getActions());
 		}
 	}

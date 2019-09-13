@@ -8,6 +8,8 @@ public:
 	int agentID;
 	pair<int, int> yx;
 
+	Agent() = default;
+
 	Agent(const int& agentID) : agentID(agentID) {}
 
 	Agent(const int& agentID, const pair<int, int>& yx) :
@@ -27,6 +29,8 @@ public:
 	Agents agents;
 	int tilePoint, areaPoint;
 
+	Team() = default;
+
 	Team(const int& teamID) : teamID(teamID) {}
 
 	Team(const int& teamID, const Agents& agents, const int& tilePoint, const int& areaPoint) :
@@ -40,6 +44,8 @@ public:
 class Teams {
 public:
 	pair<Team, Team> teams;
+
+	Teams() = default;
 
 	Teams(const pair<Team, Team>& teams) : teams(teams) {}
 };

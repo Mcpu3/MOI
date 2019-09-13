@@ -21,6 +21,7 @@ public:
 			isWall[i].front() = true;
 			isWall[i].back() = true;
 		}
+
 		for (int i = 0; i < 2 + width; ++i) {
 			isWall.front()[i] = true;
 			isWall.back()[i] = true;
