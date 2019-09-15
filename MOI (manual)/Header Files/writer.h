@@ -17,9 +17,9 @@ public:
 
 			_action.emplace("agentID", static_cast<double>(i.agentID));
 
-			if (Action::Type::MOVE == i.type) _action.emplace("type", "move");
-			else if (Action::Type::REMOVE == i.type) _action.emplace("type", "remove");
-			else _action.emplace("type", "stay");
+			if (i.dydx == make_pair(0, 0)) _action.emplace("type", "stay");
+			else if (Action::Type::MOVE == i.type) _action.emplace("type", "move");
+			else _action.emplace("type", "remove");
 
 			_action.emplace("dx", static_cast<double>(i.dydx.second));
 			_action.emplace("dy", static_cast<double>(i.dydx.first));

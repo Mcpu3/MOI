@@ -50,6 +50,8 @@ private:
 		const vector<pair<int, int>> _dydx{ { -1, -1 }, { -1, 0 }, { -1, 1 }, { 0, -1 }, { 0, 1 }, { 1, -1 }, { 1, 0 }, { 1, 1 } };
 		pair<deque<tuple<VariableField, Agent, int, pair<Action, Action>>>, deque<tuple<VariableField, Agent, int, pair<Action, Action>>>> _deque;
 
+		_deque.first.emplace_back(_variableField, agent, _point, make_pair(Action(agent.agentID, { 0, 0 }), Action(agent.agentID, { 0, 0 })));
+
 		for (const pair<int, int>& i : _dydx) {
 			Action _action(agent.agentID);
 
@@ -68,17 +70,18 @@ private:
 				VariableField _newVariableField(1 + get<0>(_deque.first.front()).turn, get<0>(_deque.first.front()).tiled);
 				Agent _newAgent(agent.agentID);
 
-				if (Action::Type::MOVE == get<3>(_deque.first.front()).first.type) {
+				if (get<3>(_deque.first.front()).first.dydx == make_pair(0, 0)) _newAgent.yx = get<1>(_deque.first.front()).yx;
+				else if (Action::Type::MOVE == get<3>(_deque.first.front()).first.type) {
 					_newAgent.yx.first = get<1>(_deque.first.front()).yx.first + get<3>(_deque.first.front()).first.dydx.first;
 					_newAgent.yx.second = get<1>(_deque.first.front()).yx.second + get<3>(_deque.first.front()).first.dydx.second;
 					_newVariableField.tiled[_newAgent.yx.first][_newAgent.yx.second] = _teams.teams.first.teamID;
 				}
-				else if (Action::Type::REMOVE == get<3>(_deque.first.front()).first.type) {
+				else {
 					_newAgent.yx = get<1>(_deque.first.front()).yx;
 					_newVariableField.tiled[_newAgent.yx.first + get<3>(_deque.first.front()).first.dydx.first][_newAgent.yx.second + get<3>(_deque.first.front()).first.dydx.second] = 0;
 				}
 
-				int _newPoint = max(get<2>(_deque.first.front()), getPoint(_newVariableField));
+				const int _newPoint = max(get<2>(_deque.first.front()), getPoint(_newVariableField));
 
 				for (const pair<int, int>& i : _dydx) {
 					Action _newAction(agent.agentID);
@@ -98,13 +101,11 @@ private:
 
 			sort(_deque.second.begin(), _deque.second.end(), [](const tuple <VariableField, Agent, int, pair<Action, Action>>& a, const tuple <VariableField, Agent, int, pair<Action, Action>>& b) { return get<2>(a) > get<2>(b); });
 
-			if (256 < _deque.second.size()) _deque.second.erase(256 + _deque.second.begin(), _deque.second.end());
+			if (512 < _deque.second.size()) _deque.second.erase(512 + _deque.second.begin(), _deque.second.end());
 
 			_deque.first.swap(_deque.second);
 		}
-		if (_point < get<2>(_deque.first.front())) return get<3>(_deque.first.front()).second;
-
-		return { agent.agentID, Action::Type::STAY, { 0, 0 } };
+		return get<3>(_deque.first.front()).second;
 	}
 
 public:

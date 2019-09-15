@@ -31,9 +31,6 @@ public:
 			cout << "MOI" << endl;
 
 			while ('\n' != getchar()) {}
-
-			Actions _actions = Reader::readActions();
-
 			_variableField = Reader::readVariableField(_fixedField);
 			_teams = Reader::readTeams(_match);
 			Writer::writeActions(_solver.getActions());

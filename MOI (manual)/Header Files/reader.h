@@ -23,8 +23,7 @@ public:
 			Action _action(static_cast<int>(i->get<picojson::object>()["agentID"].get<double>()));
 
 			if ("move" == i->get<picojson::object>()["type"].get<string>()) _action.type = Action::Type::MOVE;
-			else if ("remove" == i->get<picojson::object>()["type"].get<string>()) _action.type = Action::Type::REMOVE;
-			else _action.type = Action::Type::STAY;
+			else _action.type = Action::Type::REMOVE;
 
 			_action.dydx = { static_cast<int>(i->get<picojson::object>()["dy"].get<double>()), static_cast<int>(i->get<picojson::object>()["dx"].get<double>()) };
 			_action.turn = static_cast<int>(i->get<picojson::object>()["turn"].get<double>());

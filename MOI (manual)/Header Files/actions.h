@@ -7,8 +7,7 @@ class Action {
 public:
 	enum class Type {
 		MOVE,
-		REMOVE,
-		STAY
+		REMOVE
 	};
 
 	int agentID;
@@ -34,6 +33,27 @@ public:
 	{}
 
 	Action(const int& agentID, const Type& type, const pair<int, int>& dydx, const int& turn, const int& apply) :
+		agentID(agentID),
+		type(type),
+		dydx(dydx),
+		turn(turn),
+		apply(apply)
+	{}
+
+	Action(const int& agentID, const pair<int, int>& dydx) :
+		agentID(agentID),
+		type(type),
+		dydx(dydx)
+	{}
+
+	Action(const int& agentID, const pair<int, int>& dydx, const int& turn) :
+		agentID(agentID),
+		type(type),
+		dydx(dydx),
+		turn(turn)
+	{}
+
+	Action(const int& agentID, const pair<int, int>& dydx, const int& turn, const int& apply) :
 		agentID(agentID),
 		type(type),
 		dydx(dydx),
