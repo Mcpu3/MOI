@@ -1,9 +1,13 @@
 #pragma once
 
+#include "boost/property_tree/ini_parser.hpp"
+#include "boost/property_tree/ptree.hpp"
 #include "matches.h"
+#include "parameters.h"
 #include "picojson.h"
 #include <fstream>
 #include <string>
+using namespace std;
 
 class Reader {
 public:
@@ -27,5 +31,16 @@ public:
 		}
 
 		return _matches;
+	}
+
+	static Parameters readParameters() {
+		boost::property_tree::ptree _ptree;
+
+		boost::property_tree::read_ini("Parameters.ini", _ptree);
+
+		string _host = _ptree.get_optional<string>("Parameters.Host").get();
+		string _token = _ptree.get_optional<string>("Parameters.Token").get();
+
+		return { _host, _token };
 	}
 };
