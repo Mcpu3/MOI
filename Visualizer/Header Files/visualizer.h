@@ -1,7 +1,7 @@
 #pragma once
 
 #include "field.h"
-#include "match.h"
+#include "matches.h"
 #include "reader.h"
 #include "teams.h"
 #include <Siv3D.hpp>
@@ -21,7 +21,7 @@ private:
 	Stopwatch _stopwatch;
 	const FixedField _fixedField;
 	VariableField _variableField;
-	const Match _match;
+	const Matches _matches;
 	Teams _teams;
 	const pair<Font, Font> _fonts;
 	vector<vector<AreaPoint>> _areaPoints;
@@ -135,8 +135,8 @@ public:
 		_stopwatch(true),
 		_fixedField(Reader::readFixedField()),
 		_variableField(Reader::readVariableField(_fixedField)),
-		_match(Reader::readMatch()),
-		_teams(Reader::readTeams(_match)),
+		_matches(Reader::readMatches()),
+		_teams(Reader::readTeams(_matches)),
 		_fonts(16, 32),
 		_areaPoints(2 + _fixedField.height, vector<AreaPoint>(2 + _fixedField.width)),
 		_rectfs(2 + _fixedField.height, vector<RectF>(2 + _fixedField.width)) {
@@ -150,7 +150,7 @@ public:
 	void visualize() {
 		if (_stopwatch.s()) {
 			_stopwatch.restart();
-			_teams = Reader::readTeams(_match);
+			_teams = Reader::readTeams(_matches);
 			_variableField = Reader::readVariableField(_fixedField);
 			initializeAreaPoints();
 		}

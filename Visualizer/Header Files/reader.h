@@ -1,7 +1,7 @@
 #pragma once
 
 #include "field.h"
-#include "match.h"
+#include "matches.h"
 #include "picojson.h"
 #include "teams.h"
 #include <Siv3D.hpp>
@@ -11,7 +11,7 @@ using namespace std;
 class Reader {
 public:
 	static FixedField readFixedField() {
-		ifstream _ifstream("get.json");
+		ifstream _ifstream("visualizer.json");
 		picojson::value _value;
 
 		picojson::parse(_value, _ifstream);
@@ -30,7 +30,7 @@ public:
 	}
 
 	static VariableField readVariableField(const FixedField& fixedField) {
-		ifstream _ifstream("get.json");
+		ifstream _ifstream("visualizer.json");
 		picojson::value _value;
 
 		picojson::parse(_value, _ifstream);
@@ -46,8 +46,8 @@ public:
 		return { _turn, _tiled };
 	}
 
-	static Match readMatch() {
-		ifstream _ifstream("match.json");
+	static Matches readMatches() {
+		ifstream _ifstream("matches.json");
 		picojson::value _value;
 
 		picojson::parse(_value, _ifstream);
@@ -63,8 +63,8 @@ public:
 		return { _id, _intervalMillis, _matchTo, _teamID, _turnMillis, _turns };
 	}
 
-	static Teams readTeams(const Match& match) {
-		ifstream _ifstream("get.json");
+	static Teams readTeams(const Matches& matches) {
+		ifstream _ifstream("visualizer.json");
 		picojson::value _value;
 		vector<Team> _teams;
 
@@ -88,7 +88,7 @@ public:
 			_teams.emplace_back(_teamID, _agents, _tilePoint, _areaPoint);
 		}
 
-		if (_teams.front().teamID == match.teamID) return { { _teams.front(), _teams.back() } };
+		if (_teams.front().teamID == matches.teamID) return { { _teams.front(), _teams.back() } };
 
 		return { { _teams.back(), _teams.front() } };
 	}
