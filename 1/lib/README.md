@@ -1,1 +1,1 @@
-Visual Studio 2019で `lib` を `追加のライブラリ ディレクトリ` 、`libcurl.lib` を `追加の依存ファイル` として設定します
+Visual Studio 2019で `lib` を `追加のライブラリ ディレクトリ` 、 `libcurl.lib` を `追加の依存ファイル` として設定します
