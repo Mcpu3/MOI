@@ -105,6 +105,7 @@ private:
 
 			_deque.first.swap(_deque.second);
 		}
+
 		return get<3>(_deque.first.front()).second;
 	}
 
