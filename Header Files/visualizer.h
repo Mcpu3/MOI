@@ -176,12 +176,14 @@ public:
 				else _rectfs[i][j].drawFrame(2.0, 0.0, { 0.0, 155.0 / 255.0, 159.0 / 255.0 });
 			}
 		}
+
 		for (const Agent& i : _teams.teams.first.agents.agents) {
 			Circle _circle(_rectfs[i.yx.first][i.yx.second].center(), 8.0);
 
 			_circle.draw({ 0.0, 155.0 / 255.0, 159.0 / 255.0 });
 			_fonts.first(i.agentID).drawAt(_circle.center);
 		}
+
 		for (const Agent& i : _teams.teams.second.agents.agents) {
 			Circle _circle(_rectfs[i.yx.first][i.yx.second].center(), 8.0);
 
