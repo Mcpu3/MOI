@@ -25,6 +25,7 @@ public:
 			_action.emplace("dy", static_cast<double>(i.dydx.first));
 			_array.emplace_back(_action);
 		}
+
 		_object.emplace("actions", _array);
 		_ofstream << picojson::value(_object);
 		_ofstream.close();
