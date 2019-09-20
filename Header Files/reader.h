@@ -122,6 +122,7 @@ public:
 
 			_teams.emplace_back(_teamID, _agents, _tilePoint, _areaPoint);
 		}
+
 		if (_teams.front().teamID == matches.teamID) return { { _teams.front(), _teams.back() } };
 
 		return { { _teams.back(), _teams.front() } };
