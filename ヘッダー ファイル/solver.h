@@ -46,15 +46,12 @@ private:
 	}
 
 	Action getAction(const Agent& agent) {
+		Action _action(agent.agentID);
 		const int _point = getPoint(_variableField);
 		const vector<pair<int, int>> _dydx{ { -1, -1 }, { -1, 0 }, { -1, 1 }, { 0, -1 }, { 0, 1 }, { 1, -1 }, { 1, 0 }, { 1, 1 } };
 		pair<deque<tuple<VariableField, Agent, int, pair<Action, Action>>>, deque<tuple<VariableField, Agent, int, pair<Action, Action>>>> _deque;
 
-		_deque.first.emplace_back(_variableField, agent, _point, make_pair(Action(agent.agentID, { 0, 0 }), Action(agent.agentID, { 0, 0 })));
-
 		for (const pair<int, int>& i : _dydx) {
-			Action _action(agent.agentID);
-
 			_action.dydx = i;
 
 			if (!_fixedField.isWall[_action.dydx.first + agent.yx.first][_action.dydx.second + agent.yx.second] && 1 < getChebyshevDistance(_action, agent)) {
@@ -65,13 +62,25 @@ private:
 			}
 		}
 
+		if (_deque.first.empty()) {
+			for (const pair<int, int>& i : _dydx) {
+				_action.dydx = i;
+
+				if (!_fixedField.isWall[_action.dydx.first + agent.yx.first][_action.dydx.second + agent.yx.second]) {
+					if (_variableField.tiled[_action.dydx.first + agent.yx.first][_action.dydx.second + agent.yx.second]) _action.type = Action::Type::REMOVE;
+					else _action.type = Action::Type::MOVE;
+
+					_deque.first.emplace_back(_variableField, agent, _point, make_pair(_action, _action));
+				}
+			}
+		}
+
 		while (get<0>(_deque.first.front()).turn < min(1 + _matches.turns, 16 + _variableField.turn)) {
 			while (!_deque.first.empty()) {
 				VariableField _newVariableField(1 + get<0>(_deque.first.front()).turn, get<0>(_deque.first.front()).tiled);
 				Agent _newAgent(agent.agentID);
 
-				if (get<3>(_deque.first.front()).first.dydx == make_pair(0, 0)) _newAgent.yx = get<1>(_deque.first.front()).yx;
-				else if (Action::Type::MOVE == get<3>(_deque.first.front()).first.type) {
+				if (Action::Type::MOVE == get<3>(_deque.first.front()).first.type) {
 					_newAgent.yx.first = get<1>(_deque.first.front()).yx.first + get<3>(_deque.first.front()).first.dydx.first;
 					_newAgent.yx.second = get<1>(_deque.first.front()).yx.second + get<3>(_deque.first.front()).first.dydx.second;
 					_newVariableField.tiled[_newAgent.yx.first][_newAgent.yx.second] = _teams.teams.first.teamID;
@@ -84,9 +93,7 @@ private:
 				const int _newPoint = max(get<2>(_deque.first.front()), getPoint(_newVariableField));
 
 				for (const pair<int, int>& i : _dydx) {
-					Action _newAction(agent.agentID);
-
-					_newAction.dydx = i;
+					Action _newAction(agent.agentID, i);
 
 					if (!_fixedField.isWall[_newAction.dydx.first + _newAgent.yx.first][_newAction.dydx.second + _newAgent.yx.second]) {
 						if (_newVariableField.tiled[_newAction.dydx.first + _newAgent.yx.first][_newAction.dydx.second + _newAgent.yx.second]) _newAction.type = Action::Type::REMOVE;
@@ -106,7 +113,9 @@ private:
 			_deque.first.swap(_deque.second);
 		}
 
-		return get<3>(_deque.first.front()).second;
+		if (_point < get<2>(_deque.first.front())) return get<3>(_deque.first.front()).second;
+
+		return { agent.agentID, { 0, 0 } };
 	}
 
 public:
